@@ -8,26 +8,27 @@
 import SwiftUI
 
 struct TaskView: View {
-    @ObservedObject var taskViewModel = TaskViewModel()
+    @EnvironmentObject var taskViewModel: TaskViewModel
     @State var showingFormModal = false
     var body: some View {
         NavigationView {
             List {
                 ForEach(taskViewModel.tasks) { task in
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(task.name)
-                                .font(.title2)
-                                .bold()
-                        }
-                        HStack {
-                            Text(task.createdDate)
-                                .font(.subheadline)
-                                .fontWeight(.light)
+                    NavigationLink(destination: EditTaskView(taskID: task.id,title: task.name)){
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text(task.name)
+                                    .font(.title2)
+                                    .bold()
+                            }
+                            HStack {
+                                Text(task.createdDate)
+                                    .font(.subheadline)
+                                    .fontWeight(.light)
+                            }
                         }
                     }
                 }
-                
             }
             .navigationBarTitle(Text("To-Do List"))
             .navigationBarItems(trailing: Button(action: {
@@ -35,7 +36,7 @@ struct TaskView: View {
             }){
                 Text("Add")
             }.sheet(isPresented: $showingFormModal){
-                FormModalView(taskViewModel: taskViewModel)
+                FormModalView()
             })
         }
     }
@@ -43,7 +44,7 @@ struct TaskView: View {
 
 struct FormModalView: View {
     @Environment(\.presentationMode) var presentation
-    var taskViewModel: TaskViewModel
+    @EnvironmentObject var taskViewModel: TaskViewModel
     @State private var taskName = ""
     var body: some View {
         Form {
@@ -58,8 +59,28 @@ struct FormModalView: View {
     }
 }
 
+struct EditTaskView: View {
+    @EnvironmentObject var taskViewModel: TaskViewModel
+    var taskID: UUID
+    @State var title: String = ""
+    
+    var body: some View {
+        print(taskViewModel.tasks.count)
+        return Form {
+            TextField("Title", text: $title)
+            Button(action: {
+                let newTask = Task(id: taskID, name: title)
+                self.taskViewModel.update(newTask)
+            }){
+                Text("OK")
+            }
+        }.navigationBarTitle(Text("Edit Task"))
+    }
+}
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         TaskView()
+            .environmentObject(TaskViewModel())
     }
 }

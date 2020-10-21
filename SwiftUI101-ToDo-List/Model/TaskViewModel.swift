@@ -14,6 +14,13 @@ final class TaskViewModel: ObservableObject {
     func add(taskViewCell cell: Task) {
         self.tasks.append(cell)
     }
+    
+    func update(_ task: Task) {
+        if let index = self.tasks.firstIndex(where: { $0.id == task.id }) {
+            self.tasks[index] = task
+        }
+    }
+    
 }
 
 struct Task: Identifiable {
