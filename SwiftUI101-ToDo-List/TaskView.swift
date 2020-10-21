@@ -60,9 +60,11 @@ struct FormModalView: View {
 }
 
 struct EditTaskView: View {
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+
     @EnvironmentObject var taskViewModel: TaskViewModel
     var taskID: UUID
-    @State var title: String = ""
+    @State var title: String
     
     var body: some View {
         print(taskViewModel.tasks.count)
@@ -71,6 +73,7 @@ struct EditTaskView: View {
             Button(action: {
                 let newTask = Task(id: taskID, name: title)
                 self.taskViewModel.update(newTask)
+                self.presentationMode.wrappedValue.dismiss()
             }){
                 Text("OK")
             }
